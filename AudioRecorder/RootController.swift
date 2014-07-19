@@ -92,6 +92,12 @@ class RootController: NSObject {
             // Invalidate the timer
             timer?.invalidate()
             timer = nil
+            
+            editor = EditorController(windowNibName: "EditorController")
+            NSApplication.sharedApplication().runModalForWindow(editor!.window)
+            
+            // Clear the power trace
+            powerTrace.removeAll(keepCapacity: false)
         }
         
         recorderState = nextState
@@ -102,6 +108,8 @@ class RootController: NSObject {
     var recorder: AVAudioRecorder?
     var recorderState = ButtonState.NotYetStarted
     var timer: NSTimer?
+    var powerTrace: Float[] = []
+    var editor: EditorController?
     
     // MARK: Overrides
     override func awakeFromNib()  {
@@ -119,6 +127,7 @@ class RootController: NSObject {
             let recordingPath = firstPath.stringByAppendingPathComponent(fileName)
             let url = NSURL(fileURLWithPath: recordingPath)
             initialisedRecorder = AVAudioRecorder(URL: url, settings: nil, error: nil)
+            initialisedRecorder!.meteringEnabled = true
             initialisedRecorder!.prepareToRecord()
         }
         recorder = initialisedRecorder
@@ -128,7 +137,14 @@ class RootController: NSObject {
         timeField.stringValue = currentTime?.hhmmss()
     }
     
-    func timerChanged(timer:NSTimer) {
-        updateTimeLabel(recorder?.currentTime)
+    func timerChanged(aTimer:NSTimer) {
+        if let theRecorder = recorder {
+            theRecorder.updateMeters()
+            powerTrace.append(theRecorder.peakPowerForChannel(0))
+            updateTimeLabel(theRecorder.currentTime)
+        } else {
+            aTimer.invalidate()
+            timer = nil
+        }
     }
 }
