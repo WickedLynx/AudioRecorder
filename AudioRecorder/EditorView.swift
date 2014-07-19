@@ -31,11 +31,25 @@ class EditorView: NSView {
     var maximumPower: Float = 160.0
     var optimumWidth: Int = 0
     var levelGroups: LevelGroup[] = []
+    var levelOffset: Float = 0
     
     // MARK: properties
     var audioLevels: Float[] = [] {
     didSet {
         let totalLevels = audioLevels.count
+        let sortedLevels = sort(audioLevels.copy())
+        
+        if let min = sortedLevels.firstObject() {
+            if min < 0 {
+                levelOffset = 0 - min
+                minimumPower = 0
+            } else {
+                minimumPower = min
+            }
+        }
+        if let max = sortedLevels.lastObject() {
+            maximumPower = max + levelOffset
+        }
         var groups: LevelGroup[] = []
         if totalLevels < Int(self.bounds.size.width) {
             for audioLevel in audioLevels {
@@ -78,13 +92,12 @@ class EditorView: NSView {
         func heightForCurrentBand(level: Float) -> Float {
             let powerFSD: Float = Float(maximumPower - minimumPower)
             let heightFSD: Float = Float(CGRectGetHeight(self.bounds))
-            let height: Float = (level + maximumPower) * (heightFSD / powerFSD)
+            let height: Float = (level + levelOffset) * (heightFSD / powerFSD)
             return height
         }
         
         var startPointX = Int(CGRectGetMidX(self.bounds)) - Int(optimumWidth / 2)
-        let contextPointer = NSGraphicsContext.currentContext()!.graphicsPort()
-        let currentContext: CGContextRef = UnsafePointer<CGContext>(contextPointer).memory
+        let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
         
         CGContextSetLineWidth(currentContext, 1.0)
         CGContextSetStrokeColorWithColor(currentContext, NSColor.redColor().CGColor)
@@ -95,6 +108,7 @@ class EditorView: NSView {
             let points = [startPoint, endPoint]
             CGContextAddLines(currentContext, points, 2)
             CGContextStrokePath(currentContext)
+            ++startPointX
         }
     }
 }

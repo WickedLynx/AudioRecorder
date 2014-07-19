@@ -18,6 +18,14 @@ extension Array {
         }
         return firstObject
     }
+    
+    func lastObject() -> T? {
+        var lastObject: T?
+        if self.count > 0 {
+            lastObject = self[self.endIndex - 1]
+        }
+        return lastObject
+    }
 }
 
 extension NSTimeInterval {
@@ -79,7 +87,7 @@ class RootController: NSObject {
             
             // Create a timer
             let timerCallback:Selector = Selector("timerChanged:")
-            timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: timerCallback, userInfo: nil, repeats: true)
+            timer = NSTimer.scheduledTimerWithTimeInterval(0.25, target: self, selector: timerCallback, userInfo: nil, repeats: true)
             timer!.fire()
             
         case .Recording:
@@ -94,6 +102,7 @@ class RootController: NSObject {
             timer = nil
             
             editor = EditorController(windowNibName: "EditorController")
+            editor!.powerTrace = powerTrace
             NSApplication.sharedApplication().runModalForWindow(editor!.window)
             
             // Clear the power trace
