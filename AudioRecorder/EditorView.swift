@@ -9,6 +9,11 @@
 import Cocoa
 import QuartzCore
 
+// MARK: EditorViewDelegate
+protocol EditorViewDelegate {
+    func timeRangeChanged(editor: EditorView, timeRange: (start: NSTimeInterval, end: NSTimeInterval))
+}
+
 class EditorView: NSView {
     
     // MARK: Defined types
@@ -34,20 +39,28 @@ class EditorView: NSView {
         }
     }
     
-    // MARK: instance variables
+    // MARK: Properties
     var minimumPower: Float = 0
     var maximumPower: Float = 160.0
-    var canvasWidth: CGFloat = 0
+    var canvasWidth: CGFloat = 1.0
     var levelGroups: LevelGroup[] = []
     var levelOffset: Float = 0
     var trimView: NSView?
     var dragState = DragState.Ended
     var previousPoint = CGPointZero
+    var duration: NSTimeInterval = 0.0
+    var delegate: EditorViewDelegate?
+    
     var firstBandX: CGFloat {
     return CGRectGetMidX(bounds) - CGFloat(canvasWidth / 2)
     }
+    
     var canvasRect: CGRect {
     return CGRectMake(firstBandX, 0.0, canvasWidth, bounds.size.height)
+    }
+    
+    var timeScale: Float {
+    return Float(duration / canvasWidth)
     }
     
     // MARK: properties
@@ -143,9 +156,6 @@ class EditorView: NSView {
         trimView!.layer.addSublayer(trimLayer)
         
         addSubview(trimView)
-        
-        
-        
     }
     
     override func drawRect(dirtyRect: NSRect) {
@@ -174,15 +184,29 @@ class EditorView: NSView {
         }
     }
     
+    // MARK: Instance methods
+    
+    func selectedRange() -> (start: NSTimeInterval, end: NSTimeInterval) {
+        var returnValue = (0.0, duration)
+        
+        if trimView != nil {
+            let start = Float(trimView!.frame.origin.x - firstBandX) * timeScale
+            let end = Float(trimView!.frame.origin.x + trimView!.frame.size.width - firstBandX) * timeScale
+            
+            returnValue = (NSTimeInterval(floorf(start)), NSTimeInterval(floorf(end)))
+        }
+        
+        return returnValue
+    }
+    
     // MARK: Mouse events
     
     override func mouseDown(theEvent: NSEvent!)  {
-        if trimView != nil && dragState == .Ended {
+        if trimView != nil {
             let point = theEvent.locationInWindow
             let cgPoint = NSPointToCGPoint(point)
-            let viewFrame = NSRectToCGRect(trimView!.frame)
-            if CGRectContainsPoint(viewFrame, cgPoint) {
-                let midX = CGRectGetMidX(viewFrame)
+            if CGRectContainsPoint(bounds, cgPoint) {
+                let midX = CGRectGetMidX(bounds)
                 if cgPoint.x > midX {
                     dragState = .DraggingFromRight
                 } else {
@@ -207,6 +231,7 @@ class EditorView: NSView {
             
             if (targetFrame.size.width > 10.0) && (CGRectContainsRect(canvasRect, targetFrame)) {
                 trimView!.frame = targetFrame
+                delegate?.timeRangeChanged(self, timeRange: selectedRange())
             }
             
             previousPoint = point

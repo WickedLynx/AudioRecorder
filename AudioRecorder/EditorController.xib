@@ -6,6 +6,9 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="EditorController" customModule="AudioRecorder" customModuleProvider="target">
             <connections>
+                <outlet property="editorView" destination="bdj-uN-pGj" id="GmH-2E-tZz"/>
+                <outlet property="endField" destination="gj1-Kl-z4C" id="laS-eC-wR8"/>
+                <outlet property="startField" destination="wUl-aD-pei" id="pMF-u1-tUc"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
         </customObject>
@@ -14,15 +17,80 @@
         <window title="Editor" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" animationBehavior="default" id="F0z-JX-Cv5">
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+            <rect key="contentRect" x="196" y="240" width="480" height="340"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
-            <view key="contentView" id="se5-gp-TjO" customClass="EditorView" customModule="AudioRecorder" customModuleProvider="target">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="270"/>
+            <view key="contentView" id="se5-gp-TjO">
+                <rect key="frame" x="0.0" y="0.0" width="480" height="340"/>
                 <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="bdj-uN-pGj" customClass="EditorView" customModule="AudioRecorder" customModuleProvider="target">
+                        <rect key="frame" x="20" y="79" width="440" height="241"/>
+                    </customView>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="pcd-nO-0Jc">
+                        <rect key="frame" x="153" y="13" width="74" height="32"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="62" id="5HE-y0-OhK"/>
+                        </constraints>
+                        <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sJX-4b-Mm0">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
+                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wUl-aD-pei">
+                        <rect key="frame" x="19" y="48" width="204" height="22"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="200" id="aOP-EE-nTa"/>
+                            <constraint firstAttribute="height" constant="22" id="z3d-fV-NYC"/>
+                        </constraints>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" state="on" alignment="left" id="wxc-Rf-agd">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="gj1-Kl-z4C">
+                        <rect key="frame" x="258" y="49" width="204" height="22"/>
+                        <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" state="on" alignment="right" id="cKO-8Z-Irh">
+                            <font key="font" metaFont="system"/>
+                            <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                            <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                        </textFieldCell>
+                    </textField>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TAs-2u-dfI">
+                        <rect key="frame" x="266" y="13" width="69" height="32"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="57" id="MbI-fy-f35"/>
+                        </constraints>
+                        <buttonCell key="cell" type="push" title="Save" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="hOo-uh-0Cl">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="clickSave:" target="-2" id="yvI-w6-3Zd"/>
+                        </connections>
+                    </button>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="pcd-nO-0Jc" firstAttribute="top" secondItem="wUl-aD-pei" secondAttribute="bottom" constant="7" id="AUY-bN-aTo"/>
+                    <constraint firstItem="wUl-aD-pei" firstAttribute="trailing" secondItem="pcd-nO-0Jc" secondAttribute="trailing" id="HOz-Zv-yif"/>
+                    <constraint firstItem="wUl-aD-pei" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="21" id="Ip7-LJ-p4X"/>
+                    <constraint firstAttribute="bottom" secondItem="pcd-nO-0Jc" secondAttribute="bottom" constant="20" symbolic="YES" id="MJ6-eM-17q"/>
+                    <constraint firstItem="wUl-aD-pei" firstAttribute="top" secondItem="bdj-uN-pGj" secondAttribute="bottom" constant="9" id="Uog-E4-8Rh"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="top" secondItem="bdj-uN-pGj" secondAttribute="bottom" constant="8" symbolic="YES" id="WPc-g6-wwY"/>
+                    <constraint firstItem="TAs-2u-dfI" firstAttribute="leading" secondItem="pcd-nO-0Jc" secondAttribute="trailing" constant="51" id="X7A-cw-loh"/>
+                    <constraint firstItem="bdj-uN-pGj" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="XbW-jP-Adz"/>
+                    <constraint firstAttribute="trailing" secondItem="bdj-uN-pGj" secondAttribute="trailing" constant="20" symbolic="YES" id="ZZE-Vw-xRh"/>
+                    <constraint firstItem="TAs-2u-dfI" firstAttribute="top" secondItem="gj1-Kl-z4C" secondAttribute="bottom" constant="8" symbolic="YES" id="odM-Mu-GxL"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="trailing" secondItem="bdj-uN-pGj" secondAttribute="trailing" id="qla-g0-jPK"/>
+                    <constraint firstItem="pcd-nO-0Jc" firstAttribute="top" secondItem="TAs-2u-dfI" secondAttribute="top" id="qxB-8c-eKq"/>
+                    <constraint firstItem="bdj-uN-pGj" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="rH8-Aw-bR9"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="leading" secondItem="wUl-aD-pei" secondAttribute="trailing" constant="39" id="u8W-Fu-bVd"/>
+                </constraints>
             </view>
             <connections>
                 <outlet property="delegate" destination="-2" id="0bl-1N-AYu"/>
             </connections>
+            <point key="canvasLocation" x="139" y="182"/>
         </window>
     </objects>
 </document>

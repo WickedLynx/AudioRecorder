@@ -68,10 +68,31 @@ class RootController: NSObject {
             }
         }
     }
+    
+    enum RecordingPreset: Int {
+        case Low = 0
+        case Medium
+        case High
+        
+        func settings() -> Dictionary<String, Int> {
+            switch self {
+            case .Low:
+                return [AVLinearPCMBitDepthKey: 8, AVNumberOfChannelsKey : 1, AVSampleRateKey : 8_000, AVLinearPCMIsBigEndianKey : 0, AVLinearPCMIsFloatKey : 0]
+                
+            case .Medium:
+                return [AVLinearPCMBitDepthKey: 8, AVNumberOfChannelsKey : 1, AVSampleRateKey : 22_000, AVLinearPCMIsBigEndianKey : 0, AVLinearPCMIsFloatKey : 0]
+                
+            case .High:
+                return [AVLinearPCMBitDepthKey: 16, AVNumberOfChannelsKey : 1, AVSampleRateKey : 44_000, AVLinearPCMIsBigEndianKey : 0, AVLinearPCMIsFloatKey : 0]
+            }
+        }
+    }
 
     // MARK: Outlets
     @IBOutlet var recordButton : NSButton
     @IBOutlet var timeField : NSTextField
+    @IBOutlet var qualityPresetMatrix : NSMatrix
+    @IBOutlet var window : NSWindow
     
     // MARK: Actions
     @IBAction func clickRecord(sender : NSButton) {
@@ -93,6 +114,13 @@ class RootController: NSObject {
         case .Recording:
             nextState = .NotYetStarted
             
+            editor = EditorController(windowNibName: "EditorController")
+            editor!.powerTrace = powerTrace
+            editor!.recordingURL = recorder?.url
+            if let theDuration = recorder?.currentTime {
+                editor!.duration = theDuration
+            }
+            
             // Stop recording
             recorder?.stop()
             recorder = nil
@@ -101,12 +129,10 @@ class RootController: NSObject {
             timer?.invalidate()
             timer = nil
             
-            editor = EditorController(windowNibName: "EditorController")
-            editor!.powerTrace = powerTrace
-            NSApplication.sharedApplication().runModalForWindow(editor!.window)
-            
             // Clear the power trace
             powerTrace.removeAll(keepCapacity: false)
+            
+            NSApplication.sharedApplication().runModalForWindow(editor!.window)
         }
         
         recorderState = nextState
@@ -135,7 +161,8 @@ class RootController: NSObject {
         if let firstPath = filePaths.firstObject() as? String {
             let recordingPath = firstPath.stringByAppendingPathComponent(fileName)
             let url = NSURL(fileURLWithPath: recordingPath)
-            initialisedRecorder = AVAudioRecorder(URL: url, settings: nil, error: nil)
+            let selectedPreset = RecordingPreset.fromRaw(qualityPresetMatrix.selectedColumn)
+            initialisedRecorder = AVAudioRecorder(URL: url, settings: selectedPreset?.settings(), error: nil)
             initialisedRecorder!.meteringEnabled = true
             initialisedRecorder!.prepareToRecord()
         }
