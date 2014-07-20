@@ -12,6 +12,13 @@ import QuartzCore
 class EditorView: NSView {
     
     // MARK: Defined types
+    
+    enum DragState: Int {
+        case Started
+        case DraggingFromLeft, DraggingFromRight
+        case Ended
+    }
+    
     struct LevelGroup {
         let levels: Float[]
         var average: Float {
@@ -30,10 +37,18 @@ class EditorView: NSView {
     // MARK: instance variables
     var minimumPower: Float = 0
     var maximumPower: Float = 160.0
-    var optimumWidth: Int = 0
+    var canvasWidth: CGFloat = 0
     var levelGroups: LevelGroup[] = []
     var levelOffset: Float = 0
     var trimView: NSView?
+    var dragState = DragState.Ended
+    var previousPoint = CGPointZero
+    var firstBandX: CGFloat {
+    return CGRectGetMidX(bounds) - CGFloat(canvasWidth / 2)
+    }
+    var canvasRect: CGRect {
+    return CGRectMake(firstBandX, 0.0, canvasWidth, bounds.size.height)
+    }
     
     // MARK: properties
     var audioLevels: Float[] = [] {
@@ -58,14 +73,14 @@ class EditorView: NSView {
                 let group = LevelGroup(levels: [audioLevel])
                 groups.append(group)
             }
-            optimumWidth = totalLevels
+            canvasWidth = CGFloat(totalLevels)
         } else {
-            optimumWidth = Int(bounds.size.width)
-            while (totalLevels % optimumWidth == 0) {
-                --optimumWidth
+            canvasWidth = bounds.size.width
+            while (totalLevels % Int(canvasWidth) == 0) {
+                --canvasWidth
             }
             
-            let levelsInAGroup = totalLevels / optimumWidth
+            let levelsInAGroup = totalLevels / Int(canvasWidth)
             var currentGroup: LevelGroup
             var levelsForCurrentGroup: Float[] = []
             
@@ -83,8 +98,8 @@ class EditorView: NSView {
         
         if let theView = trimView {
             var viewFrame = bounds
-            viewFrame.origin.x = CGRectGetMidX(bounds) - CGFloat(optimumWidth / 2)
-            viewFrame.size.width = CGFloat(optimumWidth)
+            viewFrame.origin.x = CGRectGetMidX(bounds) - CGFloat(canvasWidth / 2)
+            viewFrame.size.width = CGFloat(canvasWidth)
             theView.frame = viewFrame
         }
         
@@ -95,6 +110,17 @@ class EditorView: NSView {
     }
 
     // MARK: Overrides
+    
+    override func acceptsFirstMouse(theEvent: NSEvent!) -> Bool  {
+        return true
+    }
+    
+    override var acceptsFirstResponder: Bool {
+    get {
+        return true
+    }
+    }
+    
     override func awakeFromNib()  {
         super.awakeFromNib()
         
@@ -119,6 +145,7 @@ class EditorView: NSView {
         addSubview(trimView)
         
         
+        
     }
     
     override func drawRect(dirtyRect: NSRect) {
@@ -131,7 +158,7 @@ class EditorView: NSView {
             return height
         }
         
-        var startPointX = Int(CGRectGetMidX(bounds)) - Int(optimumWidth / 2)
+        var startPointX = firstBandX
         let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
         
         CGContextSetLineWidth(currentContext, 1.0)
@@ -146,4 +173,49 @@ class EditorView: NSView {
             ++startPointX
         }
     }
+    
+    // MARK: Mouse events
+    
+    override func mouseDown(theEvent: NSEvent!)  {
+        if trimView != nil && dragState == .Ended {
+            let point = theEvent.locationInWindow
+            let cgPoint = NSPointToCGPoint(point)
+            let viewFrame = NSRectToCGRect(trimView!.frame)
+            if CGRectContainsPoint(viewFrame, cgPoint) {
+                let midX = CGRectGetMidX(viewFrame)
+                if cgPoint.x > midX {
+                    dragState = .DraggingFromRight
+                } else {
+                    dragState = .DraggingFromLeft
+                }
+                previousPoint = cgPoint
+            }
+        }
+    }
+    
+    override func mouseDragged(theEvent: NSEvent!) {
+        if (dragState == .DraggingFromRight || dragState == .DraggingFromLeft) && trimView != nil {
+            let point = NSPointToCGPoint(theEvent.locationInWindow)
+            var targetFrame = NSRectToCGRect(trimView!.frame)
+            let deltaX = previousPoint.x - point.x
+            if dragState == .DraggingFromLeft {
+                targetFrame.origin.x -= deltaX
+                targetFrame.size.width += deltaX
+            } else {
+                targetFrame.size.width -= deltaX
+            }
+            
+            if (targetFrame.size.width > 10.0) && (CGRectContainsRect(canvasRect, targetFrame)) {
+                trimView!.frame = targetFrame
+            }
+            
+            previousPoint = point
+        }
+    }
+    
+    override func mouseUp(theEvent: NSEvent!)  {
+        dragState = .Ended
+    }
+    
+    
 }
