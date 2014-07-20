@@ -7,6 +7,7 @@
 //
 
 import Cocoa
+import QuartzCore
 
 class EditorView: NSView {
     
@@ -32,6 +33,7 @@ class EditorView: NSView {
     var optimumWidth: Int = 0
     var levelGroups: LevelGroup[] = []
     var levelOffset: Float = 0
+    var trimView: NSView?
     
     // MARK: properties
     var audioLevels: Float[] = [] {
@@ -51,14 +53,14 @@ class EditorView: NSView {
             maximumPower = max + levelOffset
         }
         var groups: LevelGroup[] = []
-        if totalLevels < Int(self.bounds.size.width) {
+        if totalLevels < Int(bounds.size.width) {
             for audioLevel in audioLevels {
                 let group = LevelGroup(levels: [audioLevel])
                 groups.append(group)
             }
             optimumWidth = totalLevels
         } else {
-            optimumWidth = Int(self.bounds.size.width)
+            optimumWidth = Int(bounds.size.width)
             while (totalLevels % optimumWidth == 0) {
                 --optimumWidth
             }
@@ -79,24 +81,57 @@ class EditorView: NSView {
             }
         }
         
+        if let theView = trimView {
+            var viewFrame = bounds
+            viewFrame.origin.x = CGRectGetMidX(bounds) - CGFloat(optimumWidth / 2)
+            viewFrame.size.width = CGFloat(optimumWidth)
+            theView.frame = viewFrame
+        }
+        
         levelGroups = groups
         
-        self.setNeedsDisplayInRect(self.frame)
+        setNeedsDisplayInRect(frame)
     }
     }
 
     // MARK: Overrides
+    override func awakeFromNib()  {
+        super.awakeFromNib()
+        
+        trimView = NSView(frame: bounds)
+        trimView!.layerContentsRedrawPolicy = NSViewLayerContentsRedrawPolicy.OnSetNeedsDisplay
+        trimView!.wantsLayer = true
+        trimView!.layer = CALayer()
+        trimView!.layer.needsDisplayOnBoundsChange = true
+        trimView!.layer.autoresizingMask = CAAutoresizingMask.LayerWidthSizable | CAAutoresizingMask.LayerHeightSizable
+        
+        var trimLayer = CALayer()
+        trimLayer.needsDisplayOnBoundsChange = true
+        trimLayer.autoresizingMask = CAAutoresizingMask(CAAutoresizingMask.LayerWidthSizable.toRaw() | CAAutoresizingMask.LayerHeightSizable.toRaw())
+        trimLayer.backgroundColor = NSColor.blueColor().colorWithAlphaComponent(0.3).CGColor
+        trimLayer.borderWidth = 2.0
+        trimLayer.cornerRadius = 10.0
+        trimLayer.borderColor = NSColor.blueColor().CGColor
+        trimLayer.frame = trimView!.layer.bounds
+        
+        trimView!.layer.addSublayer(trimLayer)
+        
+        addSubview(trimView)
+        
+        
+    }
+    
     override func drawRect(dirtyRect: NSRect) {
         super.drawRect(dirtyRect)
 
         func heightForCurrentBand(level: Float) -> Float {
             let powerFSD: Float = Float(maximumPower - minimumPower)
-            let heightFSD: Float = Float(CGRectGetHeight(self.bounds))
+            let heightFSD: Float = Float(CGRectGetHeight(bounds))
             let height: Float = (level + levelOffset) * (heightFSD / powerFSD)
             return height
         }
         
-        var startPointX = Int(CGRectGetMidX(self.bounds)) - Int(optimumWidth / 2)
+        var startPointX = Int(CGRectGetMidX(bounds)) - Int(optimumWidth / 2)
         let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
         
         CGContextSetLineWidth(currentContext, 1.0)
