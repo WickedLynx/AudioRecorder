@@ -15,6 +15,7 @@
             <connections>
                 <outlet property="recordButton" destination="4bi-TE-y9X" id="JBv-Rg-EFU"/>
                 <outlet property="timeField" destination="bnm-Ht-Nkq" id="QXb-O8-VQ2"/>
+                <outlet property="window" destination="QvC-M9-y7g" id="m6y-U6-fZ1"/>
             </connections>
         </customObject>
         <customObject id="Voe-Tx-rLC" customClass="AppDelegate" customModule="AudioRecorder" customModuleProvider="target">
@@ -672,17 +673,20 @@
                 </menuItem>
             </items>
         </menu>
-        <window title="AudioRecorder" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+        <window title="AudioRecorder" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" restorable="NO" releasedWhenClosed="NO" animationBehavior="default" id="QvC-M9-y7g">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="335" y="390" width="378" height="153"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <rect key="contentRect" x="335" y="390" width="309" height="125"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1600" height="878"/>
             <view key="contentView" id="EiT-Mj-1SZ">
-                <rect key="frame" x="0.0" y="0.0" width="378" height="153"/>
+                <rect key="frame" x="0.0" y="0.0" width="309" height="125"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <textField verticalHuggingPriority="750" misplaced="YES" translatesAutoresizingMaskIntoConstraints="NO" id="bnm-Ht-Nkq">
-                        <rect key="frame" x="53" y="68" width="273" height="45"/>
+                    <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="bnm-Ht-Nkq">
+                        <rect key="frame" x="18" y="60" width="273" height="45"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="45" id="91Y-5a-2PG"/>
+                        </constraints>
                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" refusesFirstResponder="YES" sendsActionOnEndEditing="YES" state="on" alignment="center" title="20 : 55 : 180" id="bMk-x2-Wpu">
                             <font key="font" metaFont="system" size="33"/>
                             <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
@@ -690,7 +694,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="4bi-TE-y9X">
-                        <rect key="frame" x="148" y="13" width="84" height="32"/>
+                        <rect key="frame" x="112" y="13" width="84" height="32"/>
                         <buttonCell key="cell" type="push" title="Record" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="C2y-CF-Nht">
                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                             <font key="font" metaFont="system"/>
@@ -701,14 +705,14 @@
                     </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="bnm-Ht-Nkq" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="40" id="3cx-dr-F1E"/>
-                    <constraint firstAttribute="centerX" secondItem="4bi-TE-y9X" secondAttribute="centerX" constant="-1" id="CF5-lb-YFb"/>
-                    <constraint firstItem="bnm-Ht-Nkq" firstAttribute="bottom" secondItem="4bi-TE-y9X" secondAttribute="bottom" constant="-48" id="Itf-Zs-h96"/>
-                    <constraint firstAttribute="centerX" secondItem="bnm-Ht-Nkq" secondAttribute="centerX" id="kGd-q7-Kwu"/>
-                    <constraint firstAttribute="bottom" secondItem="4bi-TE-y9X" secondAttribute="bottom" constant="20" id="y8E-k1-NXX"/>
+                    <constraint firstItem="bnm-Ht-Nkq" firstAttribute="top" secondItem="EiT-Mj-1SZ" secondAttribute="top" constant="20" symbolic="YES" id="OMx-wh-osr"/>
+                    <constraint firstAttribute="trailing" secondItem="bnm-Ht-Nkq" secondAttribute="trailing" constant="20" symbolic="YES" id="PR3-ZX-uXg"/>
+                    <constraint firstAttribute="bottom" secondItem="4bi-TE-y9X" secondAttribute="bottom" constant="20" symbolic="YES" id="iDe-pZ-SAG"/>
+                    <constraint firstItem="bnm-Ht-Nkq" firstAttribute="leading" secondItem="EiT-Mj-1SZ" secondAttribute="leading" constant="20" symbolic="YES" id="n8y-o2-11V"/>
+                    <constraint firstItem="bnm-Ht-Nkq" firstAttribute="centerX" secondItem="4bi-TE-y9X" secondAttribute="centerX" id="to0-01-1PS"/>
                 </constraints>
             </view>
-            <point key="canvasLocation" x="304" y="250.5"/>
+            <point key="canvasLocation" x="263.5" y="304.5"/>
         </window>
     </objects>
 </document>

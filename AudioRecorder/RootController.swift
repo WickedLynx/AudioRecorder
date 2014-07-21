@@ -18,6 +18,14 @@ extension Array {
         }
         return firstObject
     }
+    
+    func lastObject() -> T? {
+        var lastObject: T?
+        if self.count > 0 {
+            lastObject = self[self.endIndex - 1]
+        }
+        return lastObject
+    }
 }
 
 extension NSTimeInterval {
@@ -41,7 +49,7 @@ extension NSTimeInterval {
 }
 
 // MARK: RootController
-class RootController: NSObject {
+class RootController: NSObject, EditorControllerDelegate {
     // MARK: Defined types
     enum ButtonState: Int {
         case NotYetStarted = 0
@@ -64,6 +72,8 @@ class RootController: NSObject {
     // MARK: Outlets
     @IBOutlet var recordButton : NSButton
     @IBOutlet var timeField : NSTextField
+    @IBOutlet var qualityPresetMatrix : NSMatrix
+    @IBOutlet var window : NSWindow
     
     // MARK: Actions
     @IBAction func clickRecord(sender : NSButton) {
@@ -79,11 +89,19 @@ class RootController: NSObject {
             
             // Create a timer
             let timerCallback:Selector = Selector("timerChanged:")
-            timer = NSTimer.scheduledTimerWithTimeInterval(1, target: self, selector: timerCallback, userInfo: nil, repeats: true)
+            timer = NSTimer.scheduledTimerWithTimeInterval(0.25, target: self, selector: timerCallback, userInfo: nil, repeats: true)
             timer!.fire()
             
         case .Recording:
             nextState = .NotYetStarted
+            
+            editor = EditorController(windowNibName: "EditorController")
+            editor!.powerTrace = powerTrace
+            editor!.recordingURL = recorder?.url
+            editor!.delegate = self
+            if let theDuration = recorder?.currentTime {
+                editor!.duration = theDuration
+            }
             
             // Stop recording
             recorder?.stop()
@@ -92,6 +110,12 @@ class RootController: NSObject {
             // Invalidate the timer
             timer?.invalidate()
             timer = nil
+            
+            // Clear the power trace
+            powerTrace.removeAll(keepCapacity: false)
+
+            NSApp.beginSheet(editor!.window, modalForWindow: window, modalDelegate: nil, didEndSelector: nil, contextInfo: nil)
+
         }
         
         recorderState = nextState
@@ -102,6 +126,8 @@ class RootController: NSObject {
     var recorder: AVAudioRecorder?
     var recorderState = ButtonState.NotYetStarted
     var timer: NSTimer?
+    var powerTrace: Float[] = []
+    var editor: EditorController?
     
     // MARK: Overrides
     override func awakeFromNib()  {
@@ -113,12 +139,17 @@ class RootController: NSObject {
     // MARK: Instance methods
     func createRecorder() -> () {
         var initialisedRecorder: AVAudioRecorder?
-        let fileName = String(NSDate().timeIntervalSince1970) + ".caf"
+        let currentDate = NSDate()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "dd-MM-yy HHmmss"
+        let fileName = "Recording on " + dateFormatter.stringFromDate(currentDate) + ".caf"
         var filePaths = NSSearchPathForDirectoriesInDomains(.MusicDirectory, .UserDomainMask, true)
         if let firstPath = filePaths.firstObject() as? String {
             let recordingPath = firstPath.stringByAppendingPathComponent(fileName)
             let url = NSURL(fileURLWithPath: recordingPath)
-            initialisedRecorder = AVAudioRecorder(URL: url, settings: nil, error: nil)
+            let selectedPreset = RecordingPreset.High
+            initialisedRecorder = AVAudioRecorder(URL: url, settings: selectedPreset.settings(), error: nil)
+            initialisedRecorder!.meteringEnabled = true
             initialisedRecorder!.prepareToRecord()
         }
         recorder = initialisedRecorder
@@ -128,7 +159,22 @@ class RootController: NSObject {
         timeField.stringValue = currentTime?.hhmmss()
     }
     
-    func timerChanged(timer:NSTimer) {
-        updateTimeLabel(recorder?.currentTime)
+    func timerChanged(aTimer:NSTimer) {
+        if let theRecorder = recorder {
+            theRecorder.updateMeters()
+            powerTrace.append(theRecorder.peakPowerForChannel(0))
+            updateTimeLabel(theRecorder.currentTime)
+        } else {
+            aTimer.invalidate()
+            timer = nil
+        }
+    }
+
+    // MARK: EditorControllerDelegate methods
+    func editorControllerDidFinishExporting(editor: EditorController)  {
+        NSApp.endSheet(editor.window)
+        editor.window.close()
+        self.editor = nil
+        self.timeField.stringValue = NSTimeInterval(0).hhmmss()
     }
 }

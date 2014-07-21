@@ -13,6 +13,9 @@
 		590B264B197AB1CB00DFE1B8 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 590B2649197AB1CB00DFE1B8 /* MainMenu.xib */; };
 		590B2657197AB1CB00DFE1B8 /* AudioRecorderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 590B2656197AB1CB00DFE1B8 /* AudioRecorderTests.swift */; };
 		590B2661197AB42800DFE1B8 /* RootController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 590B2660197AB42800DFE1B8 /* RootController.swift */; };
+		590B2665197AE65200DFE1B8 /* EditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 590B2664197AE65200DFE1B8 /* EditorView.swift */; };
+		590B2668197B00B500DFE1B8 /* EditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 590B2666197B00B500DFE1B8 /* EditorController.swift */; };
+		590B2669197B00B500DFE1B8 /* EditorController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 590B2667197B00B500DFE1B8 /* EditorController.xib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -36,6 +39,9 @@
 		590B2655197AB1CB00DFE1B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		590B2656197AB1CB00DFE1B8 /* AudioRecorderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioRecorderTests.swift; sourceTree = "<group>"; };
 		590B2660197AB42800DFE1B8 /* RootController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootController.swift; sourceTree = "<group>"; };
+		590B2664197AE65200DFE1B8 /* EditorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorView.swift; sourceTree = "<group>"; };
+		590B2666197B00B500DFE1B8 /* EditorController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EditorController.swift; sourceTree = "<group>"; };
+		590B2667197B00B500DFE1B8 /* EditorController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = EditorController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -82,6 +88,9 @@
 				590B2649197AB1CB00DFE1B8 /* MainMenu.xib */,
 				590B2641197AB1CA00DFE1B8 /* Supporting Files */,
 				590B2660197AB42800DFE1B8 /* RootController.swift */,
+				590B2664197AE65200DFE1B8 /* EditorView.swift */,
+				590B2666197B00B500DFE1B8 /* EditorController.swift */,
+				590B2667197B00B500DFE1B8 /* EditorController.xib */,
 			);
 			path = AudioRecorder;
 			sourceTree = "<group>";
@@ -192,6 +201,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				590B2669197B00B500DFE1B8 /* EditorController.xib in Resources */,
 				590B2648197AB1CB00DFE1B8 /* Images.xcassets in Resources */,
 				590B264B197AB1CB00DFE1B8 /* MainMenu.xib in Resources */,
 			);
@@ -212,6 +222,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				590B2646197AB1CA00DFE1B8 /* AppDelegate.swift in Sources */,
+				590B2665197AE65200DFE1B8 /* EditorView.swift in Sources */,
+				590B2668197B00B500DFE1B8 /* EditorController.swift in Sources */,
 				590B2644197AB1CA00DFE1B8 /* main.swift in Sources */,
 				590B2661197AB42800DFE1B8 /* RootController.swift in Sources */,
 			);
