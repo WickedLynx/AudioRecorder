@@ -415,6 +415,7 @@
 				590B265C197AB1CB00DFE1B8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		590B265D197AB1CB00DFE1B8 /* Build configuration list for PBXNativeTarget "AudioRecorderTests" */ = {
 			isa = XCConfigurationList;
@@ -423,6 +424,7 @@
 				590B265F197AB1CB00DFE1B8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
