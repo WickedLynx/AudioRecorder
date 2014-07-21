@@ -47,7 +47,7 @@ class EditorView: NSView {
     var levelOffset: Float = 0
     var trimView: NSView?
     var dragState = DragState.Ended
-    var previousPoint = CGPointZero
+    var previousPoint = NSZeroPoint
     var duration: NSTimeInterval = 0.0
     var delegate: EditorViewDelegate?
     
@@ -110,10 +110,7 @@ class EditorView: NSView {
         }
         
         if let theView = trimView {
-            var viewFrame = bounds
-            viewFrame.origin.x = CGRectGetMidX(bounds) - CGFloat(canvasWidth / 2)
-            viewFrame.size.width = CGFloat(canvasWidth)
-            theView.frame = viewFrame
+            theView.frame = canvasRect
         }
         
         levelGroups = groups
@@ -147,10 +144,11 @@ class EditorView: NSView {
         var trimLayer = CALayer()
         trimLayer.needsDisplayOnBoundsChange = true
         trimLayer.autoresizingMask = CAAutoresizingMask(CAAutoresizingMask.LayerWidthSizable.toRaw() | CAAutoresizingMask.LayerHeightSizable.toRaw())
-        trimLayer.backgroundColor = NSColor.blueColor().colorWithAlphaComponent(0.3).CGColor
+        let trimColor = NSColor(calibratedRed: 0.0, green: 0.59, blue: 1.0, alpha: 1.0)
+        trimLayer.backgroundColor = trimColor.colorWithAlphaComponent(0.3).CGColor
         trimLayer.borderWidth = 2.0
         trimLayer.cornerRadius = 10.0
-        trimLayer.borderColor = NSColor.blueColor().CGColor
+        trimLayer.borderColor = trimColor.colorWithAlphaComponent(0.8).CGColor
         trimLayer.frame = trimView!.layer.bounds
         
         trimView!.layer.addSublayer(trimLayer)
@@ -170,9 +168,14 @@ class EditorView: NSView {
         
         var startPointX = firstBandX
         let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
+
+        let backgroundColor = NSColor(calibratedRed: 0.82, green: 0.86, blue: 0.87, alpha: 1.0)
+        let foregroundColor = NSColor(calibratedRed: 0.30, green: 0.44, blue: 0.58, alpha: 1.0)
+        CGContextSetFillColorWithColor(currentContext, backgroundColor.CGColor)
+        CGContextFillRect(currentContext, bounds)
         
         CGContextSetLineWidth(currentContext, 1.0)
-        CGContextSetStrokeColorWithColor(currentContext, NSColor.redColor().CGColor)
+        CGContextSetStrokeColorWithColor(currentContext, foregroundColor.CGColor)
         
         for levelGroup in levelGroups {
             let startPoint = CGPointMake(CGFloat(startPointX), 0.0)
@@ -190,13 +193,26 @@ class EditorView: NSView {
         var returnValue = (0.0, duration)
         
         if trimView != nil {
-            let start = Float(trimView!.frame.origin.x - firstBandX) * timeScale
-            let end = Float(trimView!.frame.origin.x + trimView!.frame.size.width - firstBandX) * timeScale
+            var start = Float(trimView!.frame.origin.x - firstBandX) * timeScale
+            var end = Float(trimView!.frame.origin.x + trimView!.frame.size.width - firstBandX) * timeScale
+            if start < 0 {
+                start = 0
+            }
+            if end > Float(duration) {
+                end = Float(duration)
+            }
             
             returnValue = (NSTimeInterval(floorf(start)), NSTimeInterval(floorf(end)))
         }
         
         return returnValue
+    }
+
+    func reset() -> () {
+        if let theTrimView = trimView {
+            theTrimView.frame = canvasRect
+            delegate?.timeRangeChanged(self, timeRange: selectedRange())
+        }
     }
     
     // MARK: Mouse events
@@ -204,37 +220,42 @@ class EditorView: NSView {
     override func mouseDown(theEvent: NSEvent!)  {
         if trimView != nil {
             let point = theEvent.locationInWindow
-            let cgPoint = NSPointToCGPoint(point)
-            if CGRectContainsPoint(bounds, cgPoint) {
-                let midX = CGRectGetMidX(bounds)
-                if cgPoint.x > midX {
+            let convertedPoint = self.convertPoint(point, toView: self)
+            if NSPointInRect(convertedPoint, frame) {
+                let midX = trimView!.frame.origin.x + trimView!.frame.size.width / 2
+                if convertedPoint.x > midX {
                     dragState = .DraggingFromRight
                 } else {
                     dragState = .DraggingFromLeft
                 }
-                previousPoint = cgPoint
+                previousPoint = convertedPoint
             }
         }
     }
     
     override func mouseDragged(theEvent: NSEvent!) {
         if (dragState == .DraggingFromRight || dragState == .DraggingFromLeft) && trimView != nil {
-            let point = NSPointToCGPoint(theEvent.locationInWindow)
-            var targetFrame = NSRectToCGRect(trimView!.frame)
-            let deltaX = previousPoint.x - point.x
+            let point = self.convertPoint(theEvent.locationInWindow, toView: self)
+            var targetFrame = trimView!.frame
+            let deltaX = point.x - previousPoint.x
             if dragState == .DraggingFromLeft {
-                targetFrame.origin.x -= deltaX
-                targetFrame.size.width += deltaX
-            } else {
+                targetFrame.origin.x += deltaX
                 targetFrame.size.width -= deltaX
+            } else {
+                targetFrame.size.width += deltaX
             }
+
+            targetFrame = NSIntegralRect(targetFrame)
             
-            if (targetFrame.size.width > 10.0) && (CGRectContainsRect(canvasRect, targetFrame)) {
+            if (targetFrame.size.width > 10.0) {
+                if !NSContainsRect(canvasRect, targetFrame) {
+                    targetFrame = NSIntersectionRect(canvasRect, targetFrame)
+                }
+
                 trimView!.frame = targetFrame
                 delegate?.timeRangeChanged(self, timeRange: selectedRange())
+                previousPoint = point
             }
-            
-            previousPoint = point
         }
     }
     

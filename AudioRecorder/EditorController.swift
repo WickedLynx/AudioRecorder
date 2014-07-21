@@ -57,7 +57,8 @@ class EditorController: NSWindowController, EditorViewDelegate {
     @IBOutlet var editorView : EditorView
     @IBOutlet var startField : NSTextField
     @IBOutlet var endField : NSTextField
-    @IBOutlet var qualitySelector : NSMatrix
+    @IBOutlet var qualitySelector : NSSegmentedControl
+
     
     var recordingURL: NSURL?
     var exportSession: AVAssetExportSession?
@@ -80,6 +81,7 @@ class EditorController: NSWindowController, EditorViewDelegate {
     @IBAction func clickSave(sender : NSButton) {
         
         if let assetURL = recordingURL {
+            window.ignoresMouseEvents = true
             let selectedRange = editorView.selectedRange()
             let asset: AVAsset = AVAsset.assetWithURL(assetURL) as AVAsset
             let startTime = CMTimeMakeWithSeconds(selectedRange.start, 600)
@@ -94,7 +96,7 @@ class EditorController: NSWindowController, EditorViewDelegate {
             assetReader!.timeRange = timeRange
 
             assetWriter = AVAssetWriter(URL: NSURL(fileURLWithPath: exportPath), fileType: AVFileTypeWAVE, error: nil)
-            let selectedQuality = RecordingPreset.fromRaw(qualitySelector.selectedColumn)
+            let selectedQuality = RecordingPreset.fromRaw(qualitySelector.selectedSegment)
             let writerInput = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: selectedQuality?.exportSettings())
             writerInput.expectsMediaDataInRealTime = false
             assetWriter!.addInput(writerInput)
@@ -139,6 +141,10 @@ class EditorController: NSWindowController, EditorViewDelegate {
                 }
             }
         }
+    }
+    
+    @IBAction func cliickReset(sender : NSButton) {
+        editorView.reset()
     }
     
     func refreshView() -> () {

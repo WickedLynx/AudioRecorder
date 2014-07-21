@@ -113,8 +113,9 @@ class RootController: NSObject, EditorControllerDelegate {
             
             // Clear the power trace
             powerTrace.removeAll(keepCapacity: false)
-            
-            NSApplication.sharedApplication().runModalForWindow(editor!.window)
+
+            NSApp.beginSheet(editor!.window, modalForWindow: window, modalDelegate: nil, didEndSelector: nil, contextInfo: nil)
+
         }
         
         recorderState = nextState
@@ -171,7 +172,7 @@ class RootController: NSObject, EditorControllerDelegate {
 
     // MARK: EditorControllerDelegate methods
     func editorControllerDidFinishExporting(editor: EditorController)  {
-        NSApp.stopModal()
+        NSApp.endSheet(editor.window)
         editor.window.close()
         self.editor = nil
         self.timeField.stringValue = NSTimeInterval(0).hhmmss()
