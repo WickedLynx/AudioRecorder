@@ -49,7 +49,7 @@ extension NSTimeInterval {
 }
 
 // MARK: RootController
-class RootController: NSObject {
+class RootController: NSObject, EditorControllerDelegate {
     // MARK: Defined types
     enum ButtonState: Int {
         case NotYetStarted = 0
@@ -65,25 +65,6 @@ class RootController: NSObject {
                 
             default:
                 return String(self.toRaw())
-            }
-        }
-    }
-    
-    enum RecordingPreset: Int {
-        case Low = 0
-        case Medium
-        case High
-        
-        func settings() -> Dictionary<String, Int> {
-            switch self {
-            case .Low:
-                return [AVLinearPCMBitDepthKey: 8, AVNumberOfChannelsKey : 1, AVSampleRateKey : 8_000, AVLinearPCMIsBigEndianKey : 0, AVLinearPCMIsFloatKey : 0]
-                
-            case .Medium:
-                return [AVLinearPCMBitDepthKey: 8, AVNumberOfChannelsKey : 1, AVSampleRateKey : 22_000, AVLinearPCMIsBigEndianKey : 0, AVLinearPCMIsFloatKey : 0]
-                
-            case .High:
-                return [AVLinearPCMBitDepthKey: 16, AVNumberOfChannelsKey : 1, AVSampleRateKey : 44_000, AVLinearPCMIsBigEndianKey : 0, AVLinearPCMIsFloatKey : 0]
             }
         }
     }
@@ -117,6 +98,7 @@ class RootController: NSObject {
             editor = EditorController(windowNibName: "EditorController")
             editor!.powerTrace = powerTrace
             editor!.recordingURL = recorder?.url
+            editor!.delegate = self
             if let theDuration = recorder?.currentTime {
                 editor!.duration = theDuration
             }
@@ -156,13 +138,16 @@ class RootController: NSObject {
     // MARK: Instance methods
     func createRecorder() -> () {
         var initialisedRecorder: AVAudioRecorder?
-        let fileName = String(NSDate().timeIntervalSince1970) + ".caf"
+        let currentDate = NSDate()
+        let dateFormatter = NSDateFormatter()
+        dateFormatter.dateFormat = "dd-MM-yy HHmmss"
+        let fileName = "Recording on " + dateFormatter.stringFromDate(currentDate) + ".caf"
         var filePaths = NSSearchPathForDirectoriesInDomains(.MusicDirectory, .UserDomainMask, true)
         if let firstPath = filePaths.firstObject() as? String {
             let recordingPath = firstPath.stringByAppendingPathComponent(fileName)
             let url = NSURL(fileURLWithPath: recordingPath)
-            let selectedPreset = RecordingPreset.fromRaw(qualityPresetMatrix.selectedColumn)
-            initialisedRecorder = AVAudioRecorder(URL: url, settings: selectedPreset?.settings(), error: nil)
+            let selectedPreset = RecordingPreset.High
+            initialisedRecorder = AVAudioRecorder(URL: url, settings: selectedPreset.settings(), error: nil)
             initialisedRecorder!.meteringEnabled = true
             initialisedRecorder!.prepareToRecord()
         }
@@ -182,5 +167,13 @@ class RootController: NSObject {
             aTimer.invalidate()
             timer = nil
         }
+    }
+
+    // MARK: EditorControllerDelegate methods
+    func editorControllerDidFinishExporting(editor: EditorController)  {
+        NSApp.stopModal()
+        editor.window.close()
+        self.editor = nil
+        self.timeField.stringValue = NSTimeInterval(0).hhmmss()
     }
 }

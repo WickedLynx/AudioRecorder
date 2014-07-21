@@ -8,6 +8,7 @@
             <connections>
                 <outlet property="editorView" destination="bdj-uN-pGj" id="GmH-2E-tZz"/>
                 <outlet property="endField" destination="gj1-Kl-z4C" id="laS-eC-wR8"/>
+                <outlet property="qualitySelector" destination="Rkc-r1-pBY" id="UAn-g8-Zfh"/>
                 <outlet property="startField" destination="wUl-aD-pei" id="pMF-u1-tUc"/>
                 <outlet property="window" destination="F0z-JX-Cv5" id="gIp-Ho-8D9"/>
             </connections>
@@ -18,7 +19,7 @@
             <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
             <rect key="contentRect" x="196" y="240" width="480" height="340"/>
-            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1600" height="878"/>
             <view key="contentView" id="se5-gp-TjO">
                 <rect key="frame" x="0.0" y="0.0" width="480" height="340"/>
                 <autoresizingMask key="autoresizingMask"/>
@@ -26,16 +27,6 @@
                     <customView translatesAutoresizingMaskIntoConstraints="NO" id="bdj-uN-pGj" customClass="EditorView" customModule="AudioRecorder" customModuleProvider="target">
                         <rect key="frame" x="20" y="79" width="440" height="241"/>
                     </customView>
-                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="pcd-nO-0Jc">
-                        <rect key="frame" x="153" y="13" width="74" height="32"/>
-                        <constraints>
-                            <constraint firstAttribute="width" constant="62" id="5HE-y0-OhK"/>
-                        </constraints>
-                        <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sJX-4b-Mm0">
-                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                            <font key="font" metaFont="system"/>
-                        </buttonCell>
-                    </button>
                     <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="wUl-aD-pei">
                         <rect key="frame" x="19" y="48" width="204" height="22"/>
                         <constraints>
@@ -57,7 +48,7 @@
                         </textFieldCell>
                     </textField>
                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="TAs-2u-dfI">
-                        <rect key="frame" x="266" y="13" width="69" height="32"/>
+                        <rect key="frame" x="397" y="13" width="69" height="32"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="57" id="MbI-fy-f35"/>
                         </constraints>
@@ -69,22 +60,64 @@
                             <action selector="clickSave:" target="-2" id="yvI-w6-3Zd"/>
                         </connections>
                     </button>
+                    <matrix verticalHuggingPriority="750" allowsEmptySelection="NO" autorecalculatesCellSize="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Rkc-r1-pBY">
+                        <rect key="frame" x="21" y="21" width="227" height="18"/>
+                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                        <size key="cellSize" width="73" height="18"/>
+                        <size key="intercellSpacing" width="4" height="2"/>
+                        <buttonCell key="prototype" type="radio" title="Radio" imagePosition="left" alignment="left" inset="2" id="SQm-MC-4xE">
+                            <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <cells>
+                            <column>
+                                <buttonCell type="radio" title="Low" imagePosition="left" alignment="left" tag="1" inset="2" id="XH9-tS-MQh">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </column>
+                            <column>
+                                <buttonCell type="radio" title="Medium" imagePosition="left" alignment="left" inset="2" id="HW5-WL-UQR">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </column>
+                            <column>
+                                <buttonCell type="radio" title="High" imagePosition="left" alignment="left" state="on" inset="2" id="18H-PA-Yjx">
+                                    <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </column>
+                        </cells>
+                    </matrix>
+                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="pcd-nO-0Jc">
+                        <rect key="frame" x="323" y="13" width="74" height="32"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="62" id="5HE-y0-OhK"/>
+                        </constraints>
+                        <buttonCell key="cell" type="push" title="Reset" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="sJX-4b-Mm0">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                    </button>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="pcd-nO-0Jc" firstAttribute="top" secondItem="wUl-aD-pei" secondAttribute="bottom" constant="7" id="AUY-bN-aTo"/>
-                    <constraint firstItem="wUl-aD-pei" firstAttribute="trailing" secondItem="pcd-nO-0Jc" secondAttribute="trailing" id="HOz-Zv-yif"/>
-                    <constraint firstItem="wUl-aD-pei" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="21" id="Ip7-LJ-p4X"/>
-                    <constraint firstAttribute="bottom" secondItem="pcd-nO-0Jc" secondAttribute="bottom" constant="20" symbolic="YES" id="MJ6-eM-17q"/>
-                    <constraint firstItem="wUl-aD-pei" firstAttribute="top" secondItem="bdj-uN-pGj" secondAttribute="bottom" constant="9" id="Uog-E4-8Rh"/>
-                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="top" secondItem="bdj-uN-pGj" secondAttribute="bottom" constant="8" symbolic="YES" id="WPc-g6-wwY"/>
-                    <constraint firstItem="TAs-2u-dfI" firstAttribute="leading" secondItem="pcd-nO-0Jc" secondAttribute="trailing" constant="51" id="X7A-cw-loh"/>
-                    <constraint firstItem="bdj-uN-pGj" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="XbW-jP-Adz"/>
-                    <constraint firstAttribute="trailing" secondItem="bdj-uN-pGj" secondAttribute="trailing" constant="20" symbolic="YES" id="ZZE-Vw-xRh"/>
-                    <constraint firstItem="TAs-2u-dfI" firstAttribute="top" secondItem="gj1-Kl-z4C" secondAttribute="bottom" constant="8" symbolic="YES" id="odM-Mu-GxL"/>
-                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="trailing" secondItem="bdj-uN-pGj" secondAttribute="trailing" id="qla-g0-jPK"/>
-                    <constraint firstItem="pcd-nO-0Jc" firstAttribute="top" secondItem="TAs-2u-dfI" secondAttribute="top" id="qxB-8c-eKq"/>
-                    <constraint firstItem="bdj-uN-pGj" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="rH8-Aw-bR9"/>
-                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="leading" secondItem="wUl-aD-pei" secondAttribute="trailing" constant="39" id="u8W-Fu-bVd"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="trailing" secondItem="TAs-2u-dfI" secondAttribute="trailing" id="1Zb-IQ-DZk"/>
+                    <constraint firstItem="Rkc-r1-pBY" firstAttribute="top" secondItem="wUl-aD-pei" secondAttribute="bottom" constant="9" id="2XT-nh-ieP"/>
+                    <constraint firstItem="bdj-uN-pGj" firstAttribute="top" secondItem="se5-gp-TjO" secondAttribute="top" constant="20" symbolic="YES" id="8hU-Hb-sRT"/>
+                    <constraint firstItem="pcd-nO-0Jc" firstAttribute="baseline" secondItem="TAs-2u-dfI" secondAttribute="baseline" id="FfQ-0Z-Hjy"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="leading" secondItem="wUl-aD-pei" secondAttribute="trailing" constant="39" id="HOT-vg-lZQ"/>
+                    <constraint firstItem="pcd-nO-0Jc" firstAttribute="top" secondItem="gj1-Kl-z4C" secondAttribute="bottom" constant="8" symbolic="YES" id="JLv-bF-M5M"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="centerX" secondItem="pcd-nO-0Jc" secondAttribute="centerX" id="JkX-EQ-vN1"/>
+                    <constraint firstItem="gj1-Kl-z4C" firstAttribute="top" secondItem="bdj-uN-pGj" secondAttribute="bottom" constant="8" symbolic="YES" id="Jpn-U9-OtC"/>
+                    <constraint firstItem="Rkc-r1-pBY" firstAttribute="centerY" secondItem="pcd-nO-0Jc" secondAttribute="centerY" id="Kbo-nz-FVo"/>
+                    <constraint firstItem="bdj-uN-pGj" firstAttribute="trailing" secondItem="gj1-Kl-z4C" secondAttribute="trailing" id="MCV-BZ-7Yk"/>
+                    <constraint firstItem="wUl-aD-pei" firstAttribute="leading" secondItem="Rkc-r1-pBY" secondAttribute="leading" id="MwY-gb-vbd"/>
+                    <constraint firstAttribute="trailing" secondItem="bdj-uN-pGj" secondAttribute="trailing" constant="20" symbolic="YES" id="Zyu-KG-WSy"/>
+                    <constraint firstItem="wUl-aD-pei" firstAttribute="top" secondItem="bdj-uN-pGj" secondAttribute="bottom" constant="9" id="aEo-5f-BgW"/>
+                    <constraint firstAttribute="bottom" secondItem="pcd-nO-0Jc" secondAttribute="bottom" constant="20" symbolic="YES" id="bzw-TD-Bfa"/>
+                    <constraint firstItem="bdj-uN-pGj" firstAttribute="leading" secondItem="se5-gp-TjO" secondAttribute="leading" constant="20" symbolic="YES" id="l7M-jn-z8E"/>
+                    <constraint firstItem="TAs-2u-dfI" firstAttribute="leading" secondItem="pcd-nO-0Jc" secondAttribute="trailing" constant="12" symbolic="YES" id="wGh-k1-2SC"/>
                 </constraints>
             </view>
             <connections>
