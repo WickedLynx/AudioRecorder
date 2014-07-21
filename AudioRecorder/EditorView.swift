@@ -25,7 +25,7 @@ class EditorView: NSView {
     }
     
     struct LevelGroup {
-        let levels: Float[]
+        let levels: [Float]
         var average: Float {
             var total: Float = 0.0
             for level in levels {
@@ -34,7 +34,7 @@ class EditorView: NSView {
             return total / Float(levels.count)
         }
         
-        init(levels withLevels: Float[]) {
+        init(levels withLevels: [Float]) {
             levels = withLevels
         }
     }
@@ -43,7 +43,7 @@ class EditorView: NSView {
     var minimumPower: Float = 0
     var maximumPower: Float = 160.0
     var canvasWidth: CGFloat = 1.0
-    var levelGroups: LevelGroup[] = []
+    var levelGroups: [LevelGroup] = []
     var levelOffset: Float = 0
     var trimView: NSView?
     var dragState = DragState.Ended
@@ -64,10 +64,10 @@ class EditorView: NSView {
     }
     
     // MARK: properties
-    var audioLevels: Float[] = [] {
+    var audioLevels: [Float] = [] {
     didSet {
         let totalLevels = audioLevels.count
-        let sortedLevels = sort(audioLevels.copy())
+        let sortedLevels = audioLevels.sorted({(level1, level2) -> Bool in return level1 > level2})
         
         if let min = sortedLevels.firstObject() {
             if min < 0 {
@@ -80,7 +80,7 @@ class EditorView: NSView {
         if let max = sortedLevels.lastObject() {
             maximumPower = max + levelOffset
         }
-        var groups: LevelGroup[] = []
+        var groups: [LevelGroup] = []
         if totalLevels < Int(bounds.size.width) {
             for audioLevel in audioLevels {
                 let group = LevelGroup(levels: [audioLevel])
@@ -95,7 +95,7 @@ class EditorView: NSView {
             
             let levelsInAGroup = totalLevels / Int(canvasWidth)
             var currentGroup: LevelGroup
-            var levelsForCurrentGroup: Float[] = []
+            var levelsForCurrentGroup: [Float] = []
             
             for level in audioLevels {
                 
@@ -167,7 +167,8 @@ class EditorView: NSView {
         }
         
         var startPointX = firstBandX
-        let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
+
+        let currentContext: CGContextRef = reinterpretCast(NSGraphicsContext.currentContext().graphicsPort())
 
         let backgroundColor = NSColor(calibratedRed: 0.82, green: 0.86, blue: 0.87, alpha: 1.0)
         let foregroundColor = NSColor(calibratedRed: 0.30, green: 0.44, blue: 0.58, alpha: 1.0)

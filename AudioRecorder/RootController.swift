@@ -126,7 +126,7 @@ class RootController: NSObject, EditorControllerDelegate {
     var recorder: AVAudioRecorder?
     var recorderState = ButtonState.NotYetStarted
     var timer: NSTimer?
-    var powerTrace: Float[] = []
+    var powerTrace: [Float] = []
     var editor: EditorController?
     
     // MARK: Overrides

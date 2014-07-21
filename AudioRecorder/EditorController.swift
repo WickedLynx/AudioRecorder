@@ -67,7 +67,7 @@ class EditorController: NSWindowController, EditorViewDelegate {
     var assetReader: AVAssetReader?
     var assetWriter: AVAssetWriter?
     
-    var powerTrace: Float[]? {
+    var powerTrace: [Float]? {
     didSet {
         refreshView()
     }
@@ -110,8 +110,11 @@ class EditorController: NSWindowController, EditorViewDelegate {
             writerInput.requestMediaDataWhenReadyOnQueue(assetReadingQueue){
                 while writerInput.readyForMoreMediaData {
                     var nextBuffer: CMSampleBufferRef? = readerOutput.copyNextSampleBuffer()
-                    if (self.assetReader!.status == AVAssetReaderStatus.Reading) && (nextBuffer != nil) {
-                        writerInput.appendSampleBuffer(nextBuffer)
+                    let readerStatus: AVAssetReaderStatus = self.assetReader!.status
+                    if (readerStatus == AVAssetReaderStatus.Reading) {
+                        if let buffer = nextBuffer {
+                            writerInput.appendSampleBuffer(nextBuffer)
+                        }
                     } else {
                         writerInput.markAsFinished()
 
@@ -124,11 +127,19 @@ class EditorController: NSWindowController, EditorViewDelegate {
                         case .Completed:
                             println("Done!")
                             self.assetWriter!.endSessionAtSourceTime(duration)
-                            self.assetWriter!.finishWriting()
-
-                            dispatch_async(dispatch_get_main_queue()){
-                                if let theDelegate = self.delegate {
-                                    theDelegate.editorControllerDidFinishExporting(self)
+                            if self.assetWriter!.respondsToSelector(Selector("finishWritingWithCompletionHandler:")) {
+                                self.assetWriter!.finishWritingWithCompletionHandler() {
+                                    dispatch_async(dispatch_get_main_queue()){
+                                        if let theDelegate = self.delegate {
+                                            theDelegate.editorControllerDidFinishExporting(self)
+                                        }
+                                    }
+                                }
+                            } else {
+                                dispatch_async(dispatch_get_main_queue()){
+                                    if let theDelegate = self.delegate {
+                                        theDelegate.editorControllerDidFinishExporting(self)
+                                    }
                                 }
                             }
 
