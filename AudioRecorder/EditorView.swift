@@ -25,7 +25,7 @@ class EditorView: NSView {
     }
     
     struct LevelGroup {
-        let levels: Float[]
+        let levels: [Float]
         var average: Float {
             var total: Float = 0.0
             for level in levels {
@@ -34,7 +34,7 @@ class EditorView: NSView {
             return total / Float(levels.count)
         }
         
-        init(levels withLevels: Float[]) {
+        init(levels withLevels: [Float]) {
             levels = withLevels
         }
     }
@@ -43,7 +43,7 @@ class EditorView: NSView {
     var minimumPower: Float = 0
     var maximumPower: Float = 160.0
     var canvasWidth: CGFloat = 1.0
-    var levelGroups: LevelGroup[] = []
+    var levelGroups: [LevelGroup] = []
     var levelOffset: Float = 0
     var trimView: NSView?
     var dragState = DragState.Ended
@@ -60,14 +60,15 @@ class EditorView: NSView {
     }
     
     var timeScale: Float {
-    return Float(duration / canvasWidth)
+    return Float(CGFloat(duration) / canvasWidth)
     }
     
     // MARK: properties
-    var audioLevels: Float[] = [] {
+    var audioLevels: [Float] = [] {
     didSet {
         let totalLevels = audioLevels.count
-        let sortedLevels = sort(audioLevels.copy())
+      
+      let sortedLevels = audioLevels.sort {$0 < $1}
         
         if let min = sortedLevels.firstObject() {
             if min < 0 {
@@ -80,7 +81,7 @@ class EditorView: NSView {
         if let max = sortedLevels.lastObject() {
             maximumPower = max + levelOffset
         }
-        var groups: LevelGroup[] = []
+        var groups: [LevelGroup] = []
         if totalLevels < Int(bounds.size.width) {
             for audioLevel in audioLevels {
                 let group = LevelGroup(levels: [audioLevel])
@@ -95,7 +96,7 @@ class EditorView: NSView {
             
             let levelsInAGroup = totalLevels / Int(canvasWidth)
             var currentGroup: LevelGroup
-            var levelsForCurrentGroup: Float[] = []
+            var levelsForCurrentGroup: [Float] = []
             
             for level in audioLevels {
                 
@@ -120,8 +121,8 @@ class EditorView: NSView {
     }
 
     // MARK: Overrides
-    
-    override func acceptsFirstMouse(theEvent: NSEvent!) -> Bool  {
+  
+    override func acceptsFirstMouse(theEvent: NSEvent?) -> Bool  {
         return true
     }
     
@@ -138,22 +139,22 @@ class EditorView: NSView {
         trimView!.layerContentsRedrawPolicy = NSViewLayerContentsRedrawPolicy.OnSetNeedsDisplay
         trimView!.wantsLayer = true
         trimView!.layer = CALayer()
-        trimView!.layer.needsDisplayOnBoundsChange = true
-        trimView!.layer.autoresizingMask = CAAutoresizingMask.LayerWidthSizable | CAAutoresizingMask.LayerHeightSizable
+        trimView!.layer!.needsDisplayOnBoundsChange = true
+        trimView!.layer!.autoresizingMask = [CAAutoresizingMask.LayerWidthSizable, CAAutoresizingMask.LayerHeightSizable]
         
-        var trimLayer = CALayer()
+        let trimLayer = CALayer()
         trimLayer.needsDisplayOnBoundsChange = true
-        trimLayer.autoresizingMask = CAAutoresizingMask(CAAutoresizingMask.LayerWidthSizable.toRaw() | CAAutoresizingMask.LayerHeightSizable.toRaw())
+        trimLayer.autoresizingMask = CAAutoresizingMask(rawValue: CAAutoresizingMask.LayerWidthSizable.rawValue | CAAutoresizingMask.LayerHeightSizable.rawValue)
         let trimColor = NSColor(calibratedRed: 0.0, green: 0.59, blue: 1.0, alpha: 1.0)
         trimLayer.backgroundColor = trimColor.colorWithAlphaComponent(0.3).CGColor
         trimLayer.borderWidth = 2.0
         trimLayer.cornerRadius = 10.0
         trimLayer.borderColor = trimColor.colorWithAlphaComponent(0.8).CGColor
-        trimLayer.frame = trimView!.layer.bounds
+        trimLayer.frame = trimView!.layer!.bounds
         
-        trimView!.layer.addSublayer(trimLayer)
+        trimView!.layer!.addSublayer(trimLayer)
         
-        addSubview(trimView)
+        addSubview(trimView!)
     }
     
     override func drawRect(dirtyRect: NSRect) {
@@ -167,7 +168,8 @@ class EditorView: NSView {
         }
         
         var startPointX = firstBandX
-        let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
+        //let currentContext: CGContextRef = Unmanaged<CGContext>.fromOpaque(NSGraphicsContext.currentContext().graphicsPort()).takeUnretainedValue()
+        let currentContext = NSGraphicsContext.currentContext()?.CGContext
 
         let backgroundColor = NSColor(calibratedRed: 0.82, green: 0.86, blue: 0.87, alpha: 1.0)
         let foregroundColor = NSColor(calibratedRed: 0.30, green: 0.44, blue: 0.58, alpha: 1.0)
@@ -217,7 +219,7 @@ class EditorView: NSView {
     
     // MARK: Mouse events
     
-    override func mouseDown(theEvent: NSEvent!)  {
+    override func mouseDown(theEvent: NSEvent)  {
         if trimView != nil {
             let point = theEvent.locationInWindow
             let convertedPoint = self.convertPoint(point, toView: self)
@@ -233,7 +235,7 @@ class EditorView: NSView {
         }
     }
     
-    override func mouseDragged(theEvent: NSEvent!) {
+    override func mouseDragged(theEvent: NSEvent) {
         if (dragState == .DraggingFromRight || dragState == .DraggingFromLeft) && trimView != nil {
             let point = self.convertPoint(theEvent.locationInWindow, toView: self)
             var targetFrame = trimView!.frame
@@ -259,7 +261,7 @@ class EditorView: NSView {
         }
     }
     
-    override func mouseUp(theEvent: NSEvent!)  {
+    override func mouseUp(theEvent: NSEvent)  {
         dragState = .Ended
     }
     

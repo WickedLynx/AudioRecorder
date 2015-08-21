@@ -35,7 +35,7 @@ enum RecordingPreset: Int {
     func exportSettings() -> Dictionary <String, Int> {
 
         var recordingSetting = self.settings()
-        recordingSetting[AVFormatIDKey] = kAudioFormatLinearPCM
+        recordingSetting[AVFormatIDKey] = Int(kAudioFormatLinearPCM)
         recordingSetting[AVLinearPCMIsNonInterleaved] = 0
 
         return recordingSetting
@@ -54,10 +54,10 @@ class EditorController: NSWindowController, EditorViewDelegate {
         endField.stringValue = duration.hhmmss()
     }
     
-    @IBOutlet var editorView : EditorView
-    @IBOutlet var startField : NSTextField
-    @IBOutlet var endField : NSTextField
-    @IBOutlet var qualitySelector : NSSegmentedControl
+    @IBOutlet weak var editorView : EditorView!
+    @IBOutlet weak var startField : NSTextField!
+    @IBOutlet weak var endField : NSTextField!
+    @IBOutlet weak var qualitySelector : NSSegmentedControl!
 
     
     var recordingURL: NSURL?
@@ -67,10 +67,10 @@ class EditorController: NSWindowController, EditorViewDelegate {
     var assetReader: AVAssetReader?
     var assetWriter: AVAssetWriter?
     
-    var powerTrace: Float[]? {
-    didSet {
-        refreshView()
-    }
+    var powerTrace: [Float]? {
+      didSet {
+          refreshView()
+      }
     }
     
     var duration: NSTimeInterval = 0.0 {
@@ -81,22 +81,33 @@ class EditorController: NSWindowController, EditorViewDelegate {
     @IBAction func clickSave(sender : NSButton) {
         
         if let assetURL = recordingURL {
-            window.ignoresMouseEvents = true
+            window!.ignoresMouseEvents = true
             let selectedRange = editorView.selectedRange()
-            let asset: AVAsset = AVAsset.assetWithURL(assetURL) as AVAsset
+            let asset: AVAsset = AVAsset(URL: assetURL)
             let startTime = CMTimeMakeWithSeconds(selectedRange.start, 600)
             let duration = CMTimeMakeWithSeconds((selectedRange.end - selectedRange.start), 600)
             let timeRange = CMTimeRange(start: startTime, duration: duration)
-            let exportPath = assetURL.path.stringByDeletingPathExtension + "-edited.wav"
-
-            assetReader = AVAssetReader(asset: asset, error: nil)
-            let assetTrack = asset.tracksWithMediaType(AVMediaTypeAudio).firstObject() as? AVAssetTrack
+            let exportPath = NSString(string: assetURL.path!).stringByDeletingPathExtension + "-edited.wav"
+          
+          do{
+            assetReader = try AVAssetReader(asset: asset)
+          }catch{
+            print("Couldn't startup the AVAssetReader")
+          }
+          
+            let assetTrack = asset.tracksWithMediaType(AVMediaTypeAudio).firstObject()!
             let readerOutput = AVAssetReaderTrackOutput(track: assetTrack, outputSettings: nil)
             assetReader!.addOutput(readerOutput)
             assetReader!.timeRange = timeRange
 
-            assetWriter = AVAssetWriter(URL: NSURL(fileURLWithPath: exportPath), fileType: AVFileTypeWAVE, error: nil)
-            let selectedQuality = RecordingPreset.fromRaw(qualitySelector.selectedSegment)
+          do{
+            print(exportPath)
+            assetWriter = try AVAssetWriter(URL: NSURL(fileURLWithPath: exportPath), fileType: AVFileTypeWAVE)
+          }catch{
+            print("Couldn't startup the AVAssetWriter")
+          }
+          
+            let selectedQuality = RecordingPreset(rawValue: qualitySelector.selectedSegment)
             let writerInput = AVAssetWriterInput(mediaType: AVMediaTypeAudio, outputSettings: selectedQuality?.exportSettings())
             writerInput.expectsMediaDataInRealTime = false
             assetWriter!.addInput(writerInput)
@@ -107,11 +118,13 @@ class EditorController: NSWindowController, EditorViewDelegate {
             assetReader!.startReading()
 
             assetReadingQueue = dispatch_queue_create("com.lbs.audiorecorder.assetreadingqueue", DISPATCH_QUEUE_SERIAL)
-            writerInput.requestMediaDataWhenReadyOnQueue(assetReadingQueue){
+            writerInput.requestMediaDataWhenReadyOnQueue(assetReadingQueue!){
                 while writerInput.readyForMoreMediaData {
+                  
+                  
                     var nextBuffer: CMSampleBufferRef? = readerOutput.copyNextSampleBuffer()
                     if (self.assetReader!.status == AVAssetReaderStatus.Reading) && (nextBuffer != nil) {
-                        writerInput.appendSampleBuffer(nextBuffer)
+                        writerInput.appendSampleBuffer(nextBuffer!)
                     } else {
                         writerInput.markAsFinished()
 
@@ -119,21 +132,22 @@ class EditorController: NSWindowController, EditorViewDelegate {
 
                         case .Failed:
                             self.assetWriter!.cancelWriting()
-                            println("Failed :(")
+                            print("Failed :(")
 
                         case .Completed:
-                            println("Done!")
+                            print("Done!")
                             self.assetWriter!.endSessionAtSourceTime(duration)
-                            self.assetWriter!.finishWriting()
 
-                            dispatch_async(dispatch_get_main_queue()){
+                            self.assetWriter!.finishWritingWithCompletionHandler({ _ in
+                              dispatch_async(dispatch_get_main_queue()){
                                 if let theDelegate = self.delegate {
-                                    theDelegate.editorControllerDidFinishExporting(self)
+                                  theDelegate.editorControllerDidFinishExporting(self)
                                 }
-                            }
+                              }
+                            })
 
                         default:
-                            println("This should not happen :/")
+                            print("This should not happen :/")
                         }
 
                         break;

@@ -11,16 +11,16 @@ import AVFoundation
 
 // MARK: Extensions
 extension Array {
-    func firstObject() -> T? {
-        var firstObject: T?
+    func firstObject() -> Element? {
+        var firstObject: Element?
         if self.count > 0 {
             firstObject = self[0]
         }
         return firstObject
     }
     
-    func lastObject() -> T? {
-        var lastObject: T?
+    func lastObject() -> Element? {
+        var lastObject: Element?
         if self.count > 0 {
             lastObject = self[self.endIndex - 1]
         }
@@ -64,16 +64,16 @@ class RootController: NSObject, EditorControllerDelegate {
                 return "Stop"
                 
             default:
-                return String(self.toRaw())
+                return String(self.rawValue)
             }
         }
     }
 
     // MARK: Outlets
-    @IBOutlet var recordButton : NSButton
-    @IBOutlet var timeField : NSTextField
-    @IBOutlet var qualityPresetMatrix : NSMatrix
-    @IBOutlet var window : NSWindow
+    @IBOutlet var recordButton : NSButton!
+    @IBOutlet var timeField : NSTextField!
+    @IBOutlet var qualityPresetMatrix : NSMatrix!
+    @IBOutlet var window : NSWindow!
     
     // MARK: Actions
     @IBAction func clickRecord(sender : NSButton) {
@@ -114,7 +114,7 @@ class RootController: NSObject, EditorControllerDelegate {
             // Clear the power trace
             powerTrace.removeAll(keepCapacity: false)
 
-            NSApp.beginSheet(editor!.window, modalForWindow: window, modalDelegate: nil, didEndSelector: nil, contextInfo: nil)
+            NSApp.beginSheet(editor!.window!, modalForWindow: window, modalDelegate: nil, didEndSelector: nil, contextInfo: nil)
 
         }
         
@@ -126,7 +126,7 @@ class RootController: NSObject, EditorControllerDelegate {
     var recorder: AVAudioRecorder?
     var recorderState = ButtonState.NotYetStarted
     var timer: NSTimer?
-    var powerTrace: Float[] = []
+    var powerTrace: [Float] = []
     var editor: EditorController?
     
     // MARK: Overrides
@@ -143,12 +143,16 @@ class RootController: NSObject, EditorControllerDelegate {
         let dateFormatter = NSDateFormatter()
         dateFormatter.dateFormat = "dd-MM-yy HHmmss"
         let fileName = "Recording on " + dateFormatter.stringFromDate(currentDate) + ".caf"
-        var filePaths = NSSearchPathForDirectoriesInDomains(.MusicDirectory, .UserDomainMask, true)
-        if let firstPath = filePaths.firstObject() as? String {
-            let recordingPath = firstPath.stringByAppendingPathComponent(fileName)
-            let url = NSURL(fileURLWithPath: recordingPath)
-            let selectedPreset = RecordingPreset.High
-            initialisedRecorder = AVAudioRecorder(URL: url, settings: selectedPreset.settings(), error: nil)
+        let filePaths = NSSearchPathForDirectoriesInDomains(.MusicDirectory, .UserDomainMask, true)
+        if let firstPath = filePaths.firstObject() {
+          let recordingPath = firstPath.stringByAppendingString(fileName)
+          let url = NSURL(fileURLWithPath: recordingPath)
+          let selectedPreset = RecordingPreset.High
+          do {
+            initialisedRecorder = try AVAudioRecorder(URL: url, settings: selectedPreset.settings())
+          }catch {
+            print("nope")
+          }
             initialisedRecorder!.meteringEnabled = true
             initialisedRecorder!.prepareToRecord()
         }
@@ -156,7 +160,7 @@ class RootController: NSObject, EditorControllerDelegate {
     }
     
     func updateTimeLabel(currentTime: NSTimeInterval?) {
-        timeField.stringValue = currentTime?.hhmmss()
+        timeField.stringValue = (currentTime?.hhmmss())!
     }
     
     func timerChanged(aTimer:NSTimer) {
@@ -172,8 +176,8 @@ class RootController: NSObject, EditorControllerDelegate {
 
     // MARK: EditorControllerDelegate methods
     func editorControllerDidFinishExporting(editor: EditorController)  {
-        NSApp.endSheet(editor.window)
-        editor.window.close()
+        NSApp.endSheet(editor.window!)
+        editor.window!.close()
         self.editor = nil
         self.timeField.stringValue = NSTimeInterval(0).hhmmss()
     }
