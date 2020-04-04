@@ -3,7 +3,7 @@ AudioRecorder
 
 A simple Mac audio recorder written in Swift
 
-##Record
+## Record
 
 ![](http://i.imgur.com/PgExAu7.png)
 
